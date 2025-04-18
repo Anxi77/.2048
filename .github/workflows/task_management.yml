@@ -31,59 +31,6 @@ env:
   PROJECT_NUMBER: "2"
 
 jobs:
-  process-proposals:
-    if: |
-      github.event_name == 'push' &&
-      contains(github.event.head_commit.modified, 'TaskProposals/')
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.x"
-          cache: "pip"
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r .github/requirements.txt
-
-      - name: Process Task Proposals
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: python .github/scripts/task_proposal.py
-
-  track-proposals:
-    if: |
-      github.event_name == 'issues' &&
-      contains(github.event.issue.labels.*.name, '⌛ 검토대기') &&
-      github.event.label.name == '✅ 승인완료'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.x"
-          cache: "pip"
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r .github/requirements.txt
-
-      - name: Process Approved Proposals
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          cd .github/scripts
-          python task_proposal_tracker.py
-
   track-status:
     if: |
       github.event_name == 'schedule' ||
